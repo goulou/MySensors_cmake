@@ -6,13 +6,13 @@ SET(CMAKE_CROSSCOMPILING 1)
 set(LTO_FLAGS "")
 
 # Find Arduino SDK delivered programs
-find_program(AR_AVR_GCC NAMES avr-gcc PATHS ${ARDUINO_PATH}/hardware/tools/avr/bin)
-find_program(AR_AVR_CXX NAMES avr-g++ PATHS ${ARDUINO_PATH}/hardware/tools/avr/bin)
-find_program(AR_AVR_OBJCOPY NAMES avr-objcopy PATHS ${ARDUINO_PATH}/hardware/tools/avr/bin)
-find_program(AR_AVR_OBJDUMP NAMES avr-objdump PATHS ${ARDUINO_PATH}/hardware/tools/avr/bin)
-find_program(AR_AVR_RANLIB NAMES avr-ranlib PATHS ${ARDUINO_PATH}/hardware/tools/avr/bin)
-find_program(AR_AVR_LD NAMES avr-ld PATHS ${ARDUINO_PATH}/hardware/tools/avr/bin)
-find_program(AR_AVR_SIZE NAMES avr-size PATHS ${ARDUINO_PATH}/hardware/tools/avr/bin)
+find_program(AR_AVR_GCC     NAMES avr-gcc     PATHS ${ARDUINO_TOOLSET_PATH}/bin)
+find_program(AR_AVR_CXX     NAMES avr-g++     PATHS ${ARDUINO_TOOLSET_PATH}/bin)
+find_program(AR_AVR_OBJCOPY NAMES avr-objcopy PATHS ${ARDUINO_TOOLSET_PATH}/bin)
+find_program(AR_AVR_OBJDUMP NAMES avr-objdump PATHS ${ARDUINO_TOOLSET_PATH}/bin)
+find_program(AR_AVR_RANLIB  NAMES avr-ranlib  PATHS ${ARDUINO_TOOLSET_PATH}/bin)
+find_program(AR_AVR_LD      NAMES avr-ld      PATHS ${ARDUINO_TOOLSET_PATH}/bin)
+find_program(AR_AVR_SIZE    NAMES avr-size    PATHS ${ARDUINO_TOOLSET_PATH}/bin)
 
 # Compiler flags
 add_definitions(${LTO_FLAGS} -mmcu=${MCU} -DF_CPU=${CPU_SPEED})
