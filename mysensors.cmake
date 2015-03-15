@@ -14,14 +14,6 @@ find_program(AR_AVR_RANLIB NAMES avr-ranlib PATHS ${ARDUINO_PATH}/hardware/tools
 find_program(AR_AVR_LD NAMES avr-ld PATHS ${ARDUINO_PATH}/hardware/tools/avr/bin)
 find_program(AR_AVR_SIZE NAMES avr-size PATHS ${ARDUINO_PATH}/hardware/tools/avr/bin)
 
-# Compiler suite specification
-#set(CMAKE_C_COMPILER ${AR_AVR_GCC})
-#set(CMAKE_CXX_COMPILER ${AR_AVR_CXX})
-#set(CMAKE_OBJCOPY ${AR_AVR_OBJCOPY})
-#set(CMAKE_OBJDUMP ${AR_AVR_OBJDUMP})
-#set(CMAKE_RANLIB ${AR_AVR_RANLIB})
-#set(CMAKE_LINKER ${AR_AVR_LD})
-
 # Compiler flags
 add_definitions(${LTO_FLAGS} -mmcu=${MCU} -DF_CPU=${CPU_SPEED})
 add_definitions(-c -g -Os -Wall)
