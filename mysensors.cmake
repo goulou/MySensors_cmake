@@ -17,20 +17,20 @@ find_program(AR_AVR_SIZE    NAMES avr-size    PATHS ${ARDUINO_TOOLSET_PATH}/bin)
 # Compiler flags
 add_definitions(${LTO_FLAGS} -mmcu=${MCU} -DF_CPU=${CPU_SPEED})
 add_definitions(-c -g -Os -Wall)
-add_definitions(-fno-exceptions -ffunction-sections -fdata-sections)
-add_definitions(-DARDUINO=160 -DAVR=1)
+add_definitions(-fno-exceptions -ffunction-sections -fdata-sections -funsigned-char -funsigned-bitfields -fpack-struct -fshort-enums)
+add_definitions(-DARDUINO=160 -DAVR=1 -D${MCU_MACRO}=1 -D__ATmegaxx0__=1)
 
 # Linker flags
 set(CMAKE_SHARED_LIBRARY_LINK_C_FLAGS "")   # remove -rdynamic for C
 set(CMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS "") # remove -rdynamic for CXX
-set(CMAKE_EXE_LINKER_FLAGS "${LTO_FLAGS} -Os -Wl,--gc-sections -mmcu=${MCU}")
+set(CMAKE_EXE_LINKER_FLAGS "${LTO_FLAGS} -Os -Wl,--gc-sections -mmcu=${MCU} -funsigned-char -funsigned-bitfields -fpack-struct -fshort-enums")
 
 add_subdirectory(${ARDUINO_PATH})
 add_subdirectory(${MYSENSORS_PATH})
 
 
 
-add_executable(${PROJECT_NAME} 
+add_executable(${PROJECT_NAME}
 	${SRC_FILES_C}
 	${SRC_FILES_CPP}
 	)
@@ -51,7 +51,7 @@ add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
 		COMMAND ${AR_AVR_SIZE} --format=avr --mcu=${MCU} ${PROJECT_NAME}
 		)
 
-add_custom_target(upload 
+add_custom_target(upload
 	COMMAND ${AR_AVR_OBJCOPY} -j .text -j .data -O ihex ${PROJECT_NAME} ${PROJECT_NAME}.hex
 	COMMAND ${AR_AVRDUDE} -C${AR_AVRDUDE_CFG} -F -p${MCU} -c${PROGRAMMER} -P${PORT} -b${PORT_SPEED} -D -Uflash:w:${PROJECT_NAME}.hex:i
 	DEPENDS ${PROJECT_NAME}
