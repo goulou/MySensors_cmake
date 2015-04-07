@@ -1,5 +1,4 @@
 
-SET(CMAKE_SYSTEM_PROCESSOR arm)
 SET(CMAKE_CROSSCOMPILING 1)
 
 #set this to "-flto" to enable LTO
@@ -28,31 +27,29 @@ set(CMAKE_EXE_LINKER_FLAGS "${LTO_FLAGS} -Os -Wl,--gc-sections -mmcu=${MCU} -fun
 add_subdirectory(${ARDUINO_PATH})
 add_subdirectory(${MYSENSORS_PATH})
 
-
-
-add_executable(${PROJECT_NAME}
-	${SRC_FILES_C}
-	${SRC_FILES_CPP}
-	)
-
-target_link_libraries(${PROJECT_NAME} Arduino)
-target_link_libraries(${PROJECT_NAME} MySensors)
-
-
-
-
 find_program(AR_AVRDUDE NAMES avrdude PATHS ${ARDUINO_PATH}/hardware/tools/)
 find_file(AR_AVRDUDE_CFG NAMES avrdude.conf PATHS ${ARDUINO_PATH}/**/ /etc/avrdude/)
 
-add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-		COMMAND ${AR_AVR_OBJCOPY} -R .eeprom -O ihex ${PROJECT_NAME}  "${PROJECT_NAME}.hex"
-		COMMAND ${AR_AVR_OBJDUMP} -h -S ${PROJECT_NAME}  >"${PROJECT_NAME}.lss"
-		COMMAND ${AR_AVR_OBJCOPY} -j .eeprom --no-change-warnings --change-section-lma .eeprom=0 -O ihex ${PROJECT_NAME}  "${PROJECT_NAME}.eep"
-		COMMAND ${AR_AVR_SIZE} --format=avr --mcu=${MCU} ${PROJECT_NAME}
-		)
+function(make_arduino_program PROGRAM_NAME)
+    add_executable(${PROGRAM_NAME}
+    	${SRC_FILES_C}
+    	${SRC_FILES_CPP}
+    	)
+    target_link_libraries(${PROGRAM_NAME} Arduino)
+    target_link_libraries(${PROGRAM_NAME} MySensors)
+    add_custom_command(TARGET ${PROGRAM_NAME} POST_BUILD
+    		COMMAND ${AR_AVR_OBJCOPY} -R .eeprom -O ihex ${PROGRAM_NAME}  "${PROGRAM_NAME}.hex"
+    		COMMAND ${AR_AVR_OBJDUMP} -h -S ${PROGRAM_NAME}  >"${PROGRAM_NAME}.lss"
+    		COMMAND ${AR_AVR_OBJCOPY} -j .eeprom --no-change-warnings --change-section-lma .eeprom=0 -O ihex ${PROGRAM_NAME}  "${PROGRAM_NAME}.eep"
+    		COMMAND ${AR_AVR_SIZE} --format=avr --mcu=${MCU} ${PROGRAM_NAME}
+    		)
 
-add_custom_target(upload
-	COMMAND ${AR_AVR_OBJCOPY} -j .text -j .data -O ihex ${PROJECT_NAME} ${PROJECT_NAME}.hex
-	COMMAND ${AR_AVRDUDE} -C${AR_AVRDUDE_CFG} -F -p${MCU} -c${PROGRAMMER} -P${PORT} -b${PORT_SPEED} -D -Uflash:w:${PROJECT_NAME}.hex:i
-	DEPENDS ${PROJECT_NAME}
-	)
+    add_custom_target(upload_${PROGRAM_NAME}
+    	COMMAND ${AR_AVR_OBJCOPY} -j .text -j .data -O ihex ${PROGRAM_NAME} ${PROGRAM_NAME}.hex
+    	COMMAND ${AR_AVRDUDE} -C${AR_AVRDUDE_CFG} -F -p${MCU} -c${PROGRAMMER} -P${PORT} -b${PORT_SPEED} -D -Uflash:w:${PROGRAM_NAME}.hex:i
+    	DEPENDS ${PROGRAM_NAME}
+    	)
+
+
+endfunction(make_arduino_program)
+
