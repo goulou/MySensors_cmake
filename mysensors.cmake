@@ -13,30 +13,38 @@ find_program(AR_AVR_RANLIB  NAMES avr-ranlib  PATHS ${ARDUINO_TOOLSET_PATH}/bin)
 find_program(AR_AVR_LD      NAMES avr-ld      PATHS ${ARDUINO_TOOLSET_PATH}/bin)
 find_program(AR_AVR_SIZE    NAMES avr-size    PATHS ${ARDUINO_TOOLSET_PATH}/bin)
 
-# Compiler flags
-add_definitions(${LTO_FLAGS} -mmcu=${MCU} -DF_CPU=${CPU_SPEED})
-add_definitions(-c -g -Os -Wall)
-add_definitions(-fno-exceptions -ffunction-sections -fdata-sections -funsigned-char -funsigned-bitfields -fpack-struct -fshort-enums)
-add_definitions(-DARDUINO=160 -DAVR=1 -D${MCU_MACRO}=1 -D__ATmegaxx0__=1)
 
-# Linker flags
-set(CMAKE_SHARED_LIBRARY_LINK_C_FLAGS "")   # remove -rdynamic for C
-set(CMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS "") # remove -rdynamic for CXX
-set(CMAKE_EXE_LINKER_FLAGS "${LTO_FLAGS} -Os -Wl,--gc-sections -mmcu=${MCU} -funsigned-char -funsigned-bitfields -fpack-struct -fshort-enums")
-
-add_subdirectory(${ARDUINO_PATH})
-add_subdirectory(${MYSENSORS_PATH})
 
 find_program(AR_AVRDUDE NAMES avrdude PATHS ${ARDUINO_PATH}/hardware/tools/)
 find_file(AR_AVRDUDE_CFG NAMES avrdude.conf PATHS ${ARDUINO_PATH}/**/ /etc/avrdude/)
 
 function(make_arduino_program PROGRAM_NAME)
+
+    # Compiler flags
+    add_definitions(${LTO_FLAGS} -mmcu=${MCU} -DF_CPU=${CPU_SPEED})
+    add_definitions(-c -g -Os -Wall)
+    add_definitions(-fno-exceptions -ffunction-sections -fdata-sections -funsigned-char -funsigned-bitfields -fpack-struct -fshort-enums)
+    add_definitions(-DARDUINO=160 -DAVR=1 -D${MCU_MACRO}=1 -D__ATmegaxx0__=1)
+
+    # Linker flags
+    set(CMAKE_SHARED_LIBRARY_LINK_C_FLAGS "")   # remove -rdynamic for C
+    set(CMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS "") # remove -rdynamic for CXX
+ #    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${LTO_FLAGS} -Os -Wl,--gc-sections -mmcu=${MCU} -funsigned-char -funsigned-bitfields -fpack-struct -fshort-enums")
+
+    add_subdirectory(${ARDUINO_PATH} ${CMAKE_CURRENT_BINARY_DIR}/Arduino)
+    add_subdirectory(${MYSENSORS_PATH} ${CMAKE_CURRENT_BINARY_DIR}/MySensors)
+    add_subdirectory(${CMAKE_SOURCE_DIR}/Common ${CMAKE_CURRENT_BINARY_DIR}/Common)
+
     add_executable(${PROGRAM_NAME}
     	${SRC_FILES_C}
     	${SRC_FILES_CPP}
     	)
-    target_link_libraries(${PROGRAM_NAME} Arduino)
-    target_link_libraries(${PROGRAM_NAME} MySensors)
+
+    set_target_properties(${PROGRAM_NAME} PROPERTIES LINK_FLAGS "-Os -Wl,--gc-sections -mmcu=${MCU} -funsigned-char -funsigned-bitfields -fpack-struct -fshort-enums")
+
+    target_link_libraries(${PROGRAM_NAME} Arduino_${DEVICE_NAME})
+    target_link_libraries(${PROGRAM_NAME} MySensors_${DEVICE_NAME})
+    target_link_libraries(${PROGRAM_NAME} Common_${DEVICE_NAME})
     add_custom_command(TARGET ${PROGRAM_NAME} POST_BUILD
     		COMMAND ${AR_AVR_OBJCOPY} -R .eeprom -O ihex ${PROGRAM_NAME}  "${PROGRAM_NAME}.hex"
     		COMMAND ${AR_AVR_OBJDUMP} -h -S ${PROGRAM_NAME}  >"${PROGRAM_NAME}.lss"
