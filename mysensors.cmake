@@ -24,7 +24,7 @@ function(make_arduino_program PROGRAM_NAME)
     add_definitions(${LTO_FLAGS} -mmcu=${MCU} -DF_CPU=${CPU_SPEED})
     add_definitions(-c -g -Os -Wall)
     add_definitions(-fno-exceptions -ffunction-sections -fdata-sections -funsigned-char -funsigned-bitfields -fpack-struct -fshort-enums)
-    add_definitions(-DARDUINO=160 -DAVR=1 -D${MCU_MACRO}=1 -D__ATmegaxx0__=1 ${PROGRAM_DEFS})
+    add_definitions(-DARDUINO=160 -DAVR=1 -D${MCU_MACRO}=1 -D__ATmegaxx0__=1 -DPROGRAM_NAME=${PROGRAM_NAME} ${PROGRAM_DEFS})
 
     # Linker flags
     set(CMAKE_SHARED_LIBRARY_LINK_C_FLAGS "")   # remove -rdynamic for C
