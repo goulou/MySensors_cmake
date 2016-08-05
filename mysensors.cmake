@@ -27,6 +27,34 @@ else()
   message(FATAL_ERROR "Failed to find pgmspace.h")
 endif()
 
+function(setup_mysensor_project SOURCE_DIR)
+    get_filename_component(DEVICE_NAME ${SOURCE_DIR} NAME)
+    
+    string(REPLACE "_" ";" DEVICE_LIST ${DEVICE_NAME})
+    list(LENGTH DEVICE_LIST LIST_LEN)
+#    message("using device name : ${DEVICE_LIST}, len=${LIST_LEN}")
+    if(${LIST_LEN} GREATER 1)
+#        message("${DEVICE_NAME} has ${LIST_LEN} components")
+        list(GET DEVICE_LIST -1 MY_NODE_ID)
+#        message("using node id : ${MY_NODE_ID}")
+        add_definitions("-DMY_NODE_ID=${MY_NODE_ID}")
+        list(REMOVE_AT DEVICE_LIST -1)
+        string(REPLACE ";" "_" DEVICE_NAME ${DEVICE_LIST})
+        message("using node ID ${MY_NODE_ID} for node ${DEVICE_NAME}")
+    endif(${LIST_LEN} GREATER 1)
+    
+    message("creating project with name ${DEVICE_NAME}")
+    project(${DEVICE_NAME})
+
+    if(${LIST_LEN} GREATER 1)
+        add_definitions("-DMY_NODE_ID=${MY_NODE_ID}")
+    endif(${LIST_LEN} GREATER 1)
+    
+    set(PROJECT_NAME "${PROJECT_NAME}" PARENT_SCOPE)
+    set(DEVICE_NAME "${DEVICE_NAME}" PARENT_SCOPE)
+endfunction(setup_mysensor_project)    
+
+
 function(make_arduino_program PROGRAM_NAME)
 
     # Compiler flags
@@ -35,6 +63,7 @@ function(make_arduino_program PROGRAM_NAME)
     add_definitions(-fno-exceptions -ffunction-sections -fdata-sections -funsigned-char -funsigned-bitfields -fpack-struct -fshort-enums)
     add_definitions(-DARDUINO=160 -DAVR=1 -D${MCU_MACRO}=1 -D__ATmegaxx0__=1 -DARDUINO_ARCH_AVR=1 -DPROGRAM_NAME=${PROGRAM_NAME} ${PROGRAM_DEFS})
 
+    
     # Linker flags
     set(CMAKE_SHARED_LIBRARY_LINK_C_FLAGS "")   # remove -rdynamic for C
     set(CMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS "") # remove -rdynamic for CXX
