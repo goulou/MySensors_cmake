@@ -1,4 +1,4 @@
-
+    
 SET(CMAKE_CROSSCOMPILING 1)
 
 #set this to "-flto" to enable LTO
@@ -32,6 +32,17 @@ function(setup_mysensor_project SOURCE_DIR)
     
     string(REPLACE "_" ";" DEVICE_LIST ${DEVICE_NAME})
     list(LENGTH DEVICE_LIST LIST_LEN)
+    
+    if(${LIST_LEN} GREATER 1)
+        list(GET DEVICE_LIST -1 BOARD_NAME)
+        if("${BOARD_NAME}" STREQUAL "BOARDV1")
+            add_definitions("-DBOARD_V2=1")
+            list(REMOVE_AT DEVICE_LIST -1)
+        elseif("${BOARD_NAME}" STREQUAL "BOARDV2")
+            add_definitions("-DBOARD_V2=1")
+            list(REMOVE_AT DEVICE_LIST -1)
+        endif("${BOARD_NAME}" STREQUAL "BOARDV1")
+    endif(${LIST_LEN} GREATER 1)
 #    message("using device name : ${DEVICE_LIST}, len=${LIST_LEN}")
     if(${LIST_LEN} GREATER 1)
 #        message("${DEVICE_NAME} has ${LIST_LEN} components")
