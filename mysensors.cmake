@@ -75,7 +75,7 @@ function(add_mysensors_node)
     list(GET ARGN 0 BOARD_NAME)
     list(REMOVE_AT ARGN 0)
     
-    set(options BOARDV1 BOARDV2 BOARDMEGA BMP INPUT_DEBOUNCE INPUT_SAFESEND)
+    set(options BOARDV1 BOARDV2 BOARDMEGA BMP INPUT_DEBOUNCE INPUT_SAFESEND INPUT_INTERRUPT REPEATER PA_LEVEL_LOW PA_LEVEL_HIGH)
     set(oneValueArgs NODEID SLEEP_TIME)
     set(multiValueArgs DIGITAL_IN DIGITAL_OUT PULLUPS ONCHANGE_IN ONCHANGE_OUT ONSET_IN ONSET_OUT INVERT_OUT INVERT_IN)
     cmake_parse_arguments(OPTS "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN} )
@@ -159,8 +159,24 @@ function(add_mysensors_node)
         target_compile_definitions(${BOARD_NAME} PRIVATE INPUT_DEBOUNCE=1)
     endif()
     
+    if(OPTS_INPUT_INTERRUPT)
+        target_compile_definitions(${BOARD_NAME} PRIVATE INPUT_INTERRUPT=1)
+    endif()
+    
     if(OPTS_INPUT_SAFESEND)
         target_compile_definitions(${BOARD_NAME} PRIVATE INPUT_SAFESEND=1)
+    endif()
+    
+    if(OPTS_REPEATER)
+        target_compile_definitions(${BOARD_NAME} PRIVATE MY_REPEATER_FEATURE=1)
+    endif()
+    
+    if(OPTS_PA_LEVEL_LOW)
+        target_compile_definitions(${BOARD_NAME} PRIVATE MY_RF24_PA_LEVEL=0)
+    endif()
+    
+    if(OPTS_PA_LEVEL_HIGH)
+        target_compile_definitions(${BOARD_NAME} PRIVATE MY_RF24_PA_LEVEL=3)
     endif()
     
 endfunction()
