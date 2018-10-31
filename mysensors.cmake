@@ -62,7 +62,10 @@ function(setup_mysensor_project SOURCE_DIR)
     project(${DEVICE_NAME})
 
     if(${LIST_LEN} GREATER 1)
-        add_definitions("-DMY_NODE_ID=${MY_NODE_ID}")
+		if(NOT "${MY_NODE_ID}" STREQUAL "")
+			message("using node id : ${MY_NODE_ID}")
+			add_definitions("-DMY_NODE_ID=${MY_NODE_ID}")
+		endif(NOT "${MY_NODE_ID}" STREQUAL "")
     endif(${LIST_LEN} GREATER 1)
     
     set(PROJECT_NAME "${PROJECT_NAME}" PARENT_SCOPE)
@@ -94,7 +97,10 @@ function(add_mysensors_node)
     endif()
     
     add_subdirectory(${BOARD_TYPE} ${BOARD_NAME})
-    target_compile_definitions(${BOARD_NAME} PRIVATE MY_NODE_ID=${OPTS_NODEID})
+	if(NOT "${OPTS_NODEID}" STREQUAL "")
+		target_compile_definitions(${BOARD_NAME} PRIVATE MY_NODE_ID=${OPTS_NODEID})
+	endif(NOT "${OPTS_NODEID}" STREQUAL "")
+	
     if(${OPTS_BOARDV1})
         target_compile_definitions(${BOARD_NAME} PRIVATE BOARD_V1=1)
     elseif(${OPTS_BOARDV2})
