@@ -188,6 +188,8 @@ function(make_arduino_program PROGRAM_NAME)
     add_definitions(-c -g -O3 -Wall)
     add_definitions(-fno-exceptions -ffunction-sections -fdata-sections -funsigned-char -funsigned-bitfields -fpack-struct -fshort-enums)
     add_definitions(-DARDUINO=160 -DAVR=1 -D${MCU_MACRO}=1 -D__ATmegaxx0__=1 -DARDUINO_ARCH_AVR=1 -DPROGRAM_NAME=${PROGRAM_NAME} ${PROGRAM_DEFS})
+    add_definitions(-D__STDC_FORMAT_MACROS)
+    add_definitions(-D__STDC_LIMIT_MACROS)
 
     
     # Linker flags
